@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 import streamlit as st
 import tempfile
 from pathlib import Path
@@ -5,7 +6,9 @@ from pptx import Presentation
 import csv
 import re
 import logging
-from concurrent.futures import ThreadPoolExecutor
+
+# Setup logging
+logging.basicConfig(level=logging.DEBUG)
 
 # Password Protection
 PREDEFINED_PASSWORD = "securepassword123"
@@ -30,25 +33,28 @@ def validate_decimal_consistency(slide, slide_index):
     issues = []
     decimal_pattern = re.compile(r'\d+[\.,]\d+')  # Pattern to match decimal numbers with either '.' or ','
     decimal_places_set = set()
+    all_matches = []
 
     for shape in slide.shapes:
         if shape.has_text_frame:
             for paragraph in shape.text_frame.paragraphs:
                 for run in paragraph.runs:
                     matches = decimal_pattern.findall(run.text)
+                    all_matches.extend(matches)
                     for match in matches:
                         logging.debug(f"Found decimal: {match}")  # Debugging line
                         decimal_places = len(match.split(',')[1] if ',' in match else match.split('.')[1])
                         decimal_places_set.add(decimal_places)
 
     if len(decimal_places_set) > 1:
-        for match in matches:
+        for match in all_matches:
             issues.append({
                 'slide': slide_index,
                 'issue': 'Inconsistent Decimal Points',
                 'text': match,
                 'details': f'Found inconsistent decimal points: {list(decimal_places_set)}'
             })
+
     return issues
 
 # Save results to CSV
@@ -99,11 +105,13 @@ def main():
 
                 # Store results in session state
                 st.session_state['csv_output'] = csv_output_path.read_bytes()
+
                 st.success("Decimal validation completed!")
 
-                # Display Download Buttons
-                if 'csv_output' in st.session_state:
-                    st.download_button("Download Validation Report (CSV)", st.session_state['csv_output'], file_name="decimal_validation_report.csv")
+            # Display Download Buttons
+            if 'csv_output' in st.session_state:
+                st.download_button("Download Validation Report (CSV)", st.session_state['csv_output'],
+                                   file_name="decimal_validation_report.csv")
 
 if __name__ == "__main__":
     main()
