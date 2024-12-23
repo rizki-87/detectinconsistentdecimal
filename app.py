@@ -8,7 +8,7 @@ import re
 import logging
 
 # Setup logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Password Protection
 PREDEFINED_PASSWORD = "securepassword123"
@@ -42,11 +42,12 @@ def validate_decimal_consistency(slide, slide_index):
                     matches = decimal_pattern.findall(run.text)
                     all_matches.extend(matches)
                     for match in matches:
-                        logging.debug(f"Found decimal: {match}")  # Debugging line
+                        logging.debug(f"Found decimal in slide {slide_index}: {match}")  # Debugging line
                         decimal_places = len(match.split(',')[1] if ',' in match else match.split('.')[1])
                         decimal_places_set.add(decimal_places)
 
     if len(decimal_places_set) > 1:
+        logging.debug(f"Inconsistent decimal points found in slide {slide_index}: {list(decimal_places_set)}")  # Debugging line
         for match in all_matches:
             issues.append({
                 'slide': slide_index,
