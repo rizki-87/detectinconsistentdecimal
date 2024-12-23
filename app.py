@@ -98,6 +98,7 @@ def main():
                 # Manual Iteration
                 for slide_index in range(total_slides):
                     slide = presentation.slides[slide_index]
+                    logging.debug(f"Validating slide {slide_index + 1}")
                     slide_issues = validate_decimal_consistency(slide, slide_index + 1)
                     issues.extend(slide_issues)
                     progress_percent = int((slide_index + 1) / total_slides * 100)
