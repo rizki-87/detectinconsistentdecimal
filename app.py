@@ -95,18 +95,14 @@ def main():
                 progress_text = st.empty()
                 issues = []
 
-                # Parallel Processing
-                with ThreadPoolExecutor() as executor:
-                    futures = []
-                    for slide_index in range(total_slides):
-                        slide = presentation.slides[slide_index]
-                        futures.append(executor.submit(validate_decimal_consistency, slide, slide_index + 1))
-
-                    for i, future in enumerate(futures):
-                        issues.extend(future.result())
-                        progress_percent = int((i + 1) / len(futures) * 100)
-                        progress_text.text(f"Progress: {progress_percent}%")
-                        progress_bar.progress(progress_percent / 100)
+                # Manual Iteration
+                for slide_index in range(total_slides):
+                    slide = presentation.slides[slide_index]
+                    slide_issues = validate_decimal_consistency(slide, slide_index + 1)
+                    issues.extend(slide_issues)
+                    progress_percent = int((slide_index + 1) / total_slides * 100)
+                    progress_text.text(f"Progress: {progress_percent}%")
+                    progress_bar.progress(progress_percent / 100)
 
                 # Save Results
                 csv_output_path = Path(tmpdir) / "decimal_validation_report.csv"
