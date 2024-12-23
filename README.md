@@ -1,0 +1,2 @@
+# detectinconsistentdecimal
+detect inconsistent decimal
