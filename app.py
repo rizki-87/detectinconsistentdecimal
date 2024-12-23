@@ -35,24 +35,27 @@ def validate_decimal_consistency(slide, slide_index):
     decimal_places_set = set()
     all_matches = []
 
+    logging.debug(f"Slide {slide_index}: Checking shapes")
     for shape in slide.shapes:
-        if shape.has_text_frame:
-            logging.debug(f"Slide {slide_index}: Text frame detected")  # Debugging line
-            for paragraph in shape.text_frame.paragraphs:
-                for run in paragraph.runs:
-                    matches = decimal_pattern.findall(run.text)
-                    logging.debug(f"Slide {slide_index}: Found matches - {matches}")  # Debugging line
-                    all_matches.extend(matches)
-                    for match in matches:
-                        logging.debug(f"Slide {slide_index}: Processing match - {match}")  # Debugging line
-                        decimal_places = len(match.split(',')[1] if ',' in match else match.split('.')[1])
-                        decimal_places_set.add(decimal_places)
+        if not shape.has_text_frame:
+            logging.debug(f"Slide {slide_index}: Shape without text frame skipped")
+            continue
+        
+        logging.debug(f"Slide {slide_index}: Text frame detected")
+        for paragraph in shape.text_frame.paragraphs:
+            for run in paragraph.runs:
+                matches = decimal_pattern.findall(run.text)
+                logging.debug(f"Slide {slide_index}: Found matches - {matches}")
+                all_matches.extend(matches)
+                for match in matches:
+                    logging.debug(f"Slide {slide_index}: Processing match - {match}")
+                    decimal_places = len(match.split(',')[1] if ',' in match else match.split('.')[1])
+                    decimal_places_set.add(decimal_places)
 
-    logging.debug(f"Slide {slide_index}: Decimal places set - {decimal_places_set}")  # Debugging line
-
+    logging.debug(f"Slide {slide_index}: Decimal places set - {decimal_places_set}")
     if len(decimal_places_set) > 1:
         for match in all_matches:
-            logging.debug(f"Slide {slide_index}: Inconsistent decimal detected - {match}")  # Debugging line
+            logging.debug(f"Slide {slide_index}: Inconsistent decimal detected - {match}")
             issues.append({
                 'slide': slide_index,
                 'issue': 'Inconsistent Decimal Points',
@@ -84,7 +87,7 @@ def main():
 
             presentation = Presentation(temp_ppt_path)
             total_slides = len(presentation.slides)
-            logging.debug(f"Total slides: {total_slides}")  # Debugging line
+            logging.debug(f"Total slides: {total_slides}")
 
             # Run Validation
             if st.button("Run Decimal Validation"):
