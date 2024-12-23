@@ -42,13 +42,15 @@ def validate_decimal_consistency(slide, slide_index):
                     matches = decimal_pattern.findall(run.text)
                     all_matches.extend(matches)
                     for match in matches:
-                        logging.debug(f"Found decimal in slide {slide_index}: {match}")  # Debugging line
+                        logging.debug(f"Slide {slide_index}: Found decimal - {match}")  # Debugging line
                         decimal_places = len(match.split(',')[1] if ',' in match else match.split('.')[1])
                         decimal_places_set.add(decimal_places)
 
+    logging.debug(f"Slide {slide_index}: Decimal places set - {decimal_places_set}")  # Debugging line
+
     if len(decimal_places_set) > 1:
-        logging.debug(f"Inconsistent decimal points found in slide {slide_index}: {list(decimal_places_set)}")  # Debugging line
         for match in all_matches:
+            logging.debug(f"Slide {slide_index}: Inconsistent decimal detected - {match}")  # Debugging line
             issues.append({
                 'slide': slide_index,
                 'issue': 'Inconsistent Decimal Points',
