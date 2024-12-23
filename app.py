@@ -37,12 +37,14 @@ def validate_decimal_consistency(slide, slide_index):
 
     for shape in slide.shapes:
         if shape.has_text_frame:
+            logging.debug(f"Slide {slide_index}: Text frame detected")  # Debugging line
             for paragraph in shape.text_frame.paragraphs:
                 for run in paragraph.runs:
                     matches = decimal_pattern.findall(run.text)
+                    logging.debug(f"Slide {slide_index}: Found matches - {matches}")  # Debugging line
                     all_matches.extend(matches)
                     for match in matches:
-                        logging.debug(f"Slide {slide_index}: Found decimal - {match}")  # Debugging line
+                        logging.debug(f"Slide {slide_index}: Processing match - {match}")  # Debugging line
                         decimal_places = len(match.split(',')[1] if ',' in match else match.split('.')[1])
                         decimal_places_set.add(decimal_places)
 
@@ -82,6 +84,7 @@ def main():
 
             presentation = Presentation(temp_ppt_path)
             total_slides = len(presentation.slides)
+            logging.debug(f"Total slides: {total_slides}")  # Debugging line
 
             # Run Validation
             if st.button("Run Decimal Validation"):
